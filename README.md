@@ -47,13 +47,13 @@ npm install
 
 **On Windows:**
 ```bash
-.\run.ps1
+.\deploy.ps1
 ```
 
 **On Mac/Linux:**
 ```bash
-chmod +x run.sh
-./run.sh
+chmod +x deploy.sh
+./deploy.sh
 ```
 
 #### Option 2: Start backend and frontend separately
@@ -150,6 +150,14 @@ register_provider("handy", HandyTranscriber)
 
 3. Import the provider in `wav_transcriber/cli.py` to register it
 4. Add tests in `tests/test_providers.py`
+
+## Documentation
+
+- **[CLAUDE.md](CLAUDE.md)** - Architecture and development guidance for contributors
+- **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)** - Detailed deployment guide
+- **[docs/QUICKSTART.md](docs/QUICKSTART.md)** - 5-minute quick start guide
+- **[docs/SETUP.md](docs/SETUP.md)** - Complete setup instructions
+- **[docs/ENV_SETUP.md](docs/ENV_SETUP.md)** - Environment variable configuration
 
 ## Architecture
 
