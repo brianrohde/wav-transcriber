@@ -25,6 +25,37 @@ npm install -g dev-browser
 dev-browser install  # Downloads Chromium for Testing
 ```
 
+## Claude Code Setup (Optional)
+
+By default, Claude Code asks permission before running dev-browser commands. Skip this by pre-approving in your settings.
+
+**Per-project** — add to `.claude/settings.json`:
+
+```json
+{
+  "permissions": {
+    "allow": [
+      "Bash(dev-browser *)",
+      "Bash(npx dev-browser *)"
+    ]
+  }
+}
+```
+
+**Global** — add to `~/.claude/settings.json`:
+
+```json
+{
+  "permissions": {
+    "allow": [
+      "Bash(dev-browser *)"
+    ]
+  }
+}
+```
+
+**Why safe:** Dev Browser scripts run in a sandboxed QuickJS environment with no filesystem or network access. Pre-approval is safe.
+
 ## Basic Script Syntax
 
 ### Standard invocation with heredoc (Bash/PowerShell):
@@ -459,6 +490,8 @@ dev-browser run my-script.js
 
 ## See Also
 
+- **Official Dev Browser GitHub**: https://github.com/SawyerHood/dev-browser
 - **Playwright API Reference**: https://playwright.dev/docs/api/class-page
-- **Dev Browser GitHub**: https://github.com/browserbase/dev-browser
+- **Dev Browser npm Package**: https://www.npmjs.com/package/dev-browser
 - **Installation**: `npm install -g dev-browser && dev-browser install`
+- **Help**: `dev-browser --help` (includes full LLM usage guide)
