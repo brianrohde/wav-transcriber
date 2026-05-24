@@ -10,6 +10,11 @@
     <!-- Main container -->
     <div class="relative z-10 min-h-screen flex items-center justify-center p-6">
       <div class="w-full max-w-2xl">
+        <!-- Debug Hint -->
+        <div v-if="debugMessage" class="mb-6 text-center text-xs text-cyan-400 font-mono bg-cyan-400/10 border border-cyan-400/30 rounded-lg px-4 py-2 inline-block mx-auto">
+          DEBUG: {{ debugMessage }}
+        </div>
+
         <!-- Header -->
         <div class="text-center mb-12">
           <h1 class="text-5xl font-bold mb-2 bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
@@ -177,7 +182,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 
 const selectedFile = ref(null)
 const isDragging = ref(false)
@@ -187,8 +192,24 @@ const transcriptionText = ref('')
 const error = ref('')
 const copiedToClipboard = ref(false)
 const transriptionMessage = ref('Processing your audio...')
+const debugMessage = ref('')
 
 const API_BASE_URL = 'http://localhost:8000'
+
+// Fetch debug message on mount
+onMounted(async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/debug`)
+    if (response.ok) {
+      const data = await response.json()
+      if (data.debug_enabled && data.debug_message) {
+        debugMessage.value = data.debug_message
+      }
+    }
+  } catch (err) {
+    // Debug fetch failed, silently continue
+  }
+})
 
 const handleDrop = (e) => {
   isDragging.value = false

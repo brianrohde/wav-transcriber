@@ -10,6 +10,7 @@ import aiofiles
 from wav_transcriber.core.transcriber import Transcriber, TranscriptionError
 from wav_transcriber.core.audio import AudioError
 from wav_transcriber.providers import whisper  # noqa: F401 - import to register provider
+from wav_transcriber.config import DEBUG_FLAG, DEBUG_MESSAGE
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -33,7 +34,19 @@ UPLOAD_DIR.mkdir(exist_ok=True)
 @app.get("/health")
 async def health():
     """Health check endpoint."""
-    return {"status": "ok"}
+    response = {"status": "ok"}
+    if DEBUG_FLAG:
+        response["debug"] = DEBUG_MESSAGE
+    return response
+
+
+@app.get("/debug")
+async def debug():
+    """Debug endpoint - returns debug flag and message."""
+    return {
+        "debug_enabled": DEBUG_FLAG,
+        "debug_message": DEBUG_MESSAGE
+    }
 
 
 @app.post("/transcribe")
