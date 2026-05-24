@@ -35,6 +35,11 @@
         <!-- Main card with enhanced liquid glass effect -->
         <div class="backdrop-blur-2xl bg-white/8 rounded-3xl border border-white/20 shadow-2xl p-8 space-y-8 animate-fade-in-up animation-delay-100">
 
+          <!-- File size info -->
+          <div class="text-center text-xs text-slate-400 px-4 py-2 rounded-lg bg-white/5 border border-white/10">
+            Maximum file size: {{ (MAX_FILE_SIZE / 1024 / 1024).toFixed(0) }}MB
+          </div>
+
           <!-- Drag and drop zone with enhanced interactions -->
           <div
             v-if="!selectedFile"
@@ -66,10 +71,6 @@
                 <svg class="w-16 h-16 text-cyan-400 animate-bounce-slow group-hover:text-cyan-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 19V5m0 0l-7 7m7-7l7 7" />
                 </svg>
-                <!-- Drag state indicator -->
-                <div v-if="isDragging" class="absolute inset-0 animate-ping-slow">
-                  <div class="w-16 h-16 border-2 border-cyan-400 rounded-full"></div>
-                </div>
               </div>
 
               <div class="text-center">
@@ -90,7 +91,7 @@
             <!-- File info card -->
             <div class="backdrop-blur-lg bg-gradient-to-br from-cyan-500/20 to-purple-500/20 rounded-2xl border border-white/20 p-6">
               <div class="flex items-center justify-between">
-                <div class="flex items-center gap-4">
+                <div class="flex items-center gap-4 flex-1">
                   <div class="p-3 rounded-xl bg-cyan-400/20 border border-cyan-400/50">
                     <svg class="w-6 h-6 text-cyan-400" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M9 19V5h1v14H9zm5-4v-4h1v4h-1z"/>
@@ -98,12 +99,16 @@
                   </div>
                   <div>
                     <p class="font-semibold text-white">{{ selectedFile.name }}</p>
-                    <p class="text-sm text-slate-400">{{ (selectedFile.size / 1024).toFixed(2) }} KB</p>
+                    <div class="flex items-center gap-3 text-sm text-slate-400">
+                      <span>{{ (selectedFile.size / 1024 / 1024).toFixed(2) }} MB</span>
+                      <span v-if="audioDuration" class="text-cyan-300">{{ formatDuration(audioDuration) }}</span>
+                      <span v-if="selectedFile.size > MAX_FILE_SIZE" class="text-red-400">⚠️ Exceeds limit</span>
+                    </div>
                   </div>
                 </div>
                 <button
                   @click="resetForm"
-                  class="px-4 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 transition-colors"
+                  class="px-4 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 transition-colors whitespace-nowrap"
                 >
                   Change
                 </button>
@@ -138,12 +143,24 @@
                 <div class="h-1 bg-white/10 rounded-full overflow-hidden">
                   <div class="h-full bg-gradient-to-r from-cyan-500 to-purple-500 animate-pulse"></div>
                 </div>
-                <p class="text-center text-sm text-slate-400">{{ transriptionMessage }}</p>
+                <p class="text-center text-sm text-slate-400">{{ transcriptionMessage }}</p>
+                <p v-if="estimatedTimeRemaining" class="text-center text-xs text-cyan-300">~{{ estimatedTimeRemaining }}s remaining</p>
               </div>
 
-              <!-- Error message -->
-              <div v-if="error" class="p-4 rounded-xl bg-red-500/20 border border-red-500/50 text-red-200 text-sm">
-                {{ error }}
+              <!-- Error message with retry -->
+              <div v-if="error" class="space-y-3">
+                <div class="p-4 rounded-xl bg-red-500/20 border border-red-500/50 text-red-200 text-sm">
+                  {{ error }}
+                </div>
+                <button
+                  @click="transcribeFile"
+                  class="w-full py-3 px-4 rounded-xl font-semibold bg-gradient-to-r from-cyan-500 to-purple-500 text-white hover:shadow-lg hover:shadow-cyan-500/50 transition-all duration-300 flex items-center justify-center gap-2 active:scale-95"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  Retry Transcription
+                </button>
               </div>
             </div>
 
@@ -154,7 +171,7 @@
               </div>
 
               <!-- Action buttons -->
-              <div class="grid grid-cols-2 gap-3">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <button
                   @click="copyToClipboard"
                   :class="[
@@ -210,12 +227,21 @@ const transcriptionDone = ref(false)
 const transcriptionText = ref('')
 const error = ref('')
 const copiedToClipboard = ref(false)
-const transriptionMessage = ref('Processing your audio...')
+const transcriptionMessage = ref('Processing your audio...')
 const debugMessage = ref('')
+const audioDuration = ref(null)
+const estimatedTimeRemaining = ref(null)
+const hasError = ref(false)
 
-const API_BASE_URL = 'http://localhost:8000'
+const API_BASE_URL = import.meta.env.MODE === 'production'
+  ? 'https://api.anothershadeofgrey.com'
+  : 'http://localhost:8000'
+const MAX_FILE_SIZE = 500 * 1024 * 1024
 
-// Fetch debug message on mount
+onMounted(() => {
+  window.addEventListener('keydown', handleKeydown)
+})
+
 onMounted(async () => {
   try {
     const response = await fetch(`${API_BASE_URL}/debug`)
@@ -230,25 +256,60 @@ onMounted(async () => {
   }
 })
 
+const handleKeydown = (e) => {
+  if (e.key === 'Escape' && isDragging.value) {
+    isDragging.value = false
+  }
+  if (e.key === 'Escape' && selectedFile.value && !isTranscribing.value) {
+    resetForm()
+  }
+}
+
+const validateAndSetFile = async (file) => {
+  if (file.type !== 'audio/wav' && !file.name.endsWith('.wav')) {
+    error.value = 'Please select a WAV file'
+    return
+  }
+  if (file.size > MAX_FILE_SIZE) {
+    error.value = `File size exceeds ${(MAX_FILE_SIZE / 1024 / 1024).toFixed(0)}MB limit`
+    return
+  }
+  selectedFile.value = file
+  error.value = ''
+  await extractAudioDuration(file)
+}
+
+const extractAudioDuration = async (file) => {
+  try {
+    const arrayBuffer = await file.arrayBuffer()
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)()
+    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer)
+    audioDuration.value = audioBuffer.duration
+  } catch (err) {
+    console.error('Error extracting audio duration:', err)
+    audioDuration.value = null
+  }
+}
+
+const formatDuration = (seconds) => {
+  if (!seconds) return ''
+  const minutes = Math.floor(seconds / 60)
+  const secs = Math.floor(seconds % 60)
+  return `${minutes}:${secs.toString().padStart(2, '0')}`
+}
+
 const handleDrop = (e) => {
   isDragging.value = false
   const files = e.dataTransfer.files
   if (files.length > 0) {
-    const file = files[0]
-    if (file.type === 'audio/wav' || file.name.endsWith('.wav')) {
-      selectedFile.value = file
-      error.value = ''
-    } else {
-      error.value = 'Please select a WAV file'
-    }
+    validateAndSetFile(files[0])
   }
 }
 
 const handleFileInput = (e) => {
   const files = e.target.files
   if (files.length > 0) {
-    selectedFile.value = files[0]
-    error.value = ''
+    validateAndSetFile(files[0])
   }
 }
 
@@ -257,10 +318,20 @@ const transcribeFile = async () => {
 
   isTranscribing.value = true
   error.value = ''
-  transriptionMessage.value = 'Processing your audio...'
+  hasError.value = false
+  transcriptionMessage.value = 'Processing your audio...'
 
   const formData = new FormData()
   formData.append('file', selectedFile.value)
+
+  const startTime = Date.now()
+  const estimateDuration = () => {
+    const elapsed = (Date.now() - startTime) / 1000
+    const estimated = Math.max(elapsed * 2, 30)
+    estimatedTimeRemaining.value = Math.ceil(estimated - elapsed)
+  }
+
+  const estimateInterval = setInterval(estimateDuration, 1000)
 
   try {
     const response = await fetch(`${API_BASE_URL}/transcribe`, {
@@ -278,9 +349,12 @@ const transcribeFile = async () => {
     transcriptionDone.value = true
   } catch (err) {
     error.value = err.message || 'Failed to transcribe. Make sure the backend is running.'
+    hasError.value = true
     console.error('Transcription error:', err)
   } finally {
+    clearInterval(estimateInterval)
     isTranscribing.value = false
+    estimatedTimeRemaining.value = null
   }
 }
 
@@ -314,5 +388,8 @@ const resetForm = () => {
   error.value = ''
   copiedToClipboard.value = false
   isTranscribing.value = false
+  audioDuration.value = null
+  hasError.value = false
+  estimatedTimeRemaining.value = null
 }
 </script>

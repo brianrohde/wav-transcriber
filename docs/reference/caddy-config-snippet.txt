@@ -1,0 +1,11 @@
+# Add this to your Caddyfile at ~/caddy/Caddyfile
+# This is the reverse proxy rule for the transcriber subdomain
+
+transcriber.anothershadeofgrey.com {
+    reverse_proxy localhost:8000 {
+        header_uri / ?
+        header_down Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        header_down X-Content-Type-Options "nosniff"
+        header_down X-Frame-Options "SAMEORIGIN"
+    }
+}

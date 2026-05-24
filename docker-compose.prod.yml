@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  transcriber-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: transcriber_backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ENV=production
+    volumes:
+      - ./uploads:/app/uploads
+    networks:
+      - default
+      - n8n_network
+
+  transcriber-frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: transcriber_frontend
+    restart: unless-stopped
+    ports:
+      - "5174:3000"
+    depends_on:
+      - transcriber-backend
+    networks:
+      - default
+      - n8n_network
+
+networks:
+  default:
+    name: transcriber_net
+  n8n_network:
+    external: true
