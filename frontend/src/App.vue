@@ -1,67 +1,86 @@
 <template>
   <div class="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-950 overflow-hidden relative">
-    <!-- Animated background elements -->
+    <!-- Animated background elements with enhanced depth -->
     <div class="fixed inset-0 pointer-events-none">
-      <div class="absolute top-20 left-20 w-72 h-72 bg-purple-500/20 rounded-full mix-blend-multiply filter blur-3xl animate-blob"></div>
-      <div class="absolute top-40 right-20 w-72 h-72 bg-blue-500/20 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-2000"></div>
+      <div class="absolute top-20 left-20 w-96 h-96 bg-cyan-500/15 rounded-full mix-blend-screen filter blur-3xl animate-blob"></div>
+      <div class="absolute top-40 right-20 w-80 h-80 bg-purple-500/20 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-2000"></div>
       <div class="absolute -bottom-8 left-1/2 w-72 h-72 bg-pink-500/20 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-4000"></div>
+      <!-- Noise texture overlay for depth -->
+      <div class="absolute inset-0 opacity-[0.02] mix-blend-overlay" style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"100\" height=\"100\"><filter id=\"noise\"><feTurbulence type=\"fractalNoise\" baseFrequency=\"0.9\" numOctaves=\"4\" /></filter><rect width=\"100\" height=\"100\" filter=\"url(%23noise)\" /></svg>');"></div>
     </div>
 
     <!-- Main container -->
     <div class="relative z-10 min-h-screen flex items-center justify-center p-6">
       <div class="w-full max-w-2xl">
-        <!-- Debug Hint -->
-        <div v-if="debugMessage" class="mb-6 text-center text-xs text-cyan-400 font-mono bg-cyan-400/10 border border-cyan-400/30 rounded-lg px-4 py-2 inline-block mx-auto">
-          DEBUG: {{ debugMessage }}
+        <!-- Debug Hint with enhanced styling -->
+        <div v-if="debugMessage" class="mb-8 text-center text-xs text-cyan-300 font-mono bg-gradient-to-r from-cyan-500/10 to-purple-500/10 border border-cyan-400/40 rounded-xl px-4 py-3 inline-block mx-auto backdrop-blur-sm animate-fade-in">
+          <span class="text-cyan-400">→</span> {{ debugMessage }}
         </div>
 
-        <!-- Header -->
-        <div class="text-center mb-12">
-          <h1 class="text-5xl font-bold mb-2 bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-            WAV Transcriber
+        <!-- Header with improved typography -->
+        <div class="text-center mb-16 animate-fade-in-up">
+          <h1 class="text-6xl font-bold mb-3 tracking-tight">
+            <span class="bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+              WAV Transcriber
+            </span>
           </h1>
-          <p class="text-lg text-slate-300">Transform audio to text with AI-powered transcription</p>
+          <p class="text-lg text-slate-400 font-light">Transform audio to text with AI-powered transcription</p>
+          <div class="mt-4 flex items-center justify-center gap-2 text-xs text-slate-500">
+            <div class="w-1 h-1 rounded-full bg-cyan-400/60"></div>
+            <span>Powered by OpenAI Whisper</span>
+            <div class="w-1 h-1 rounded-full bg-cyan-400/60"></div>
+          </div>
         </div>
 
-        <!-- Main card with liquid glass effect -->
-        <div class="backdrop-blur-xl bg-white/10 rounded-3xl border border-white/20 shadow-2xl p-8 space-y-8">
+        <!-- Main card with enhanced liquid glass effect -->
+        <div class="backdrop-blur-2xl bg-white/8 rounded-3xl border border-white/20 shadow-2xl p-8 space-y-8 animate-fade-in-up animation-delay-100">
 
-          <!-- Drag and drop zone -->
+          <!-- Drag and drop zone with enhanced interactions -->
           <div
             v-if="!selectedFile"
             @dragover.prevent="isDragging = true"
             @dragleave.prevent="isDragging = false"
             @drop.prevent="handleDrop"
             :class="[
-              'relative border-2 border-dashed rounded-2xl p-12 transition-all duration-300 cursor-pointer',
+              'relative border-2 border-dashed rounded-2xl p-12 transition-all duration-500 cursor-pointer overflow-hidden group',
               isDragging
-                ? 'border-cyan-400 bg-cyan-400/10 scale-105'
-                : 'border-white/30 bg-white/5 hover:bg-white/10'
+                ? 'border-cyan-400 bg-gradient-to-br from-cyan-500/20 to-purple-500/20 scale-105 shadow-lg shadow-cyan-500/30'
+                : 'border-white/30 bg-white/5 hover:border-white/50 hover:bg-white/8'
             ]"
           >
+            <!-- Gradient background on hover -->
+            <div v-if="!isDragging" class="absolute inset-0 bg-gradient-to-br from-cyan-500/0 via-transparent to-purple-500/0 group-hover:from-cyan-500/5 group-hover:to-purple-500/5 transition-all duration-300"></div>
+
             <input
               type="file"
               accept=".wav"
               @change="handleFileInput"
               class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              aria-label="Upload WAV audio file"
             />
 
-            <div class="flex flex-col items-center justify-center space-y-4">
+            <div class="flex flex-col items-center justify-center space-y-4 relative z-10">
+              <!-- Animated icon container -->
               <div class="relative">
-                <svg class="w-16 h-16 text-cyan-400 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="absolute inset-0 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-full blur-lg opacity-0 group-hover:opacity-30 transition-opacity duration-300 animate-pulse"></div>
+                <svg class="w-16 h-16 text-cyan-400 animate-bounce-slow group-hover:text-cyan-300 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 19V5m0 0l-7 7m7-7l7 7" />
                 </svg>
-                <div v-if="isDragging" class="absolute inset-0 animate-ping opacity-75">
-                  <div class="w-16 h-16 bg-cyan-400 rounded-full"></div>
+                <!-- Drag state indicator -->
+                <div v-if="isDragging" class="absolute inset-0 animate-ping-slow">
+                  <div class="w-16 h-16 border-2 border-cyan-400 rounded-full"></div>
                 </div>
               </div>
+
               <div class="text-center">
-                <p class="text-xl font-semibold text-white mb-2">Drag & drop your WAV file</p>
+                <p class="text-xl font-semibold text-white mb-2">{{ isDragging ? 'Drop your file here' : 'Drag & drop your WAV file' }}</p>
                 <p class="text-sm text-slate-400">or click to browse your computer</p>
               </div>
-              <div class="flex gap-2 mt-4">
-                <span class="px-3 py-1 rounded-full bg-purple-500/30 text-purple-200 text-xs font-medium">.wav</span>
-                <span class="px-3 py-1 rounded-full bg-cyan-500/30 text-cyan-200 text-xs font-medium">AI Powered</span>
+
+              <!-- Feature badges -->
+              <div class="flex gap-2 mt-6 flex-wrap justify-center">
+                <span class="px-3 py-1.5 rounded-full bg-gradient-to-r from-purple-500/30 to-purple-500/10 text-purple-200 text-xs font-medium border border-purple-400/30">.wav</span>
+                <span class="px-3 py-1.5 rounded-full bg-gradient-to-r from-cyan-500/30 to-cyan-500/10 text-cyan-200 text-xs font-medium border border-cyan-400/30">AI Powered</span>
               </div>
             </div>
           </div>
