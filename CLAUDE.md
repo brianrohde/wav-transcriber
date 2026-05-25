@@ -71,10 +71,10 @@ npm install
 **Quick Start (Recommended):**
 ```bash
 # Windows PowerShell
-.\run.ps1
+.\scripts\deploy\local\run.ps1
 
 # Mac/Linux
-./run.sh
+./scripts/deploy/local/run.sh
 ```
 
 **Manual Start:**
@@ -89,6 +89,13 @@ npm run dev
 ```
 
 Then open: http://localhost:5173
+
+### Local Redeployment (Windows)
+After code changes, quickly restart both services:
+```powershell
+.\scripts\deploy\local\deploy.ps1
+```
+This kills existing processes and restarts everything with updated dependencies.
 
 ### CLI Usage (Without Web UI)
 ```bash
@@ -174,8 +181,19 @@ wav-transcriber/
 ├── requirements.txt             # Python dependencies
 ├── requirements-dev.txt         # Development dependencies
 ├── pytest.ini                   # Pytest configuration
-├── run.sh                       # Start script (Mac/Linux)
-├── run.ps1                      # Start script (Windows)
+├── scripts/
+│   └── deploy/                  # Deployment scripts and guides
+│       ├── README.md            # Master deployment guide (START HERE)
+│       ├── local/               # Local development scripts
+│       │   ├── run.ps1          # Start local dev (Windows)
+│       │   ├── run.sh           # Start local dev (Mac/Linux)
+│       │   └── deploy.ps1       # Rebuild local services (Windows)
+│       └── vps/                 # VPS production deployment
+│           ├── deploy.ps1       # Automated VPS deployment script
+│           └── manual/
+│               └── INSTRUCTIONS.md  # SSH manual deployment steps
+├── docs/                        # Documentation
+│   └── DEPLOYMENT-PLAYBOOK.md   # Comprehensive 11-phase deployment guide
 └── venv/                        # Python virtual environment (created locally)
 ```
 
@@ -205,3 +223,17 @@ pytest tests/test_providers.py::test_handy_provider -v
 - Check audio file is valid `.wav` format and not corrupted
 - Verify API keys are set in environment
 - Check provider-specific logs (Whisper often returns 400 errors for unsupported sample rates)
+
+## Deployment
+
+**For local development:** See `scripts/deploy/README.md`
+- **Windows:** `.\scripts\deploy\local\run.ps1`
+- **Mac/Linux:** `./scripts/deploy/local/run.sh`
+- **Rebuild after changes:** `.\scripts\deploy\local\deploy.ps1` (Windows)
+
+**For VPS production:** See `scripts/deploy/README.md`
+- **Automated deployment:** `.\scripts\deploy\vps\deploy.ps1` (runs from Windows)
+- **Manual deployment:** `scripts/deploy/vps/manual/INSTRUCTIONS.md` (SSH steps)
+- **Full 11-phase guide:** `docs/DEPLOYMENT-PLAYBOOK.md`
+
+Master deployment guide: **`scripts/deploy/README.md`** — Start here for all deployment questions.
