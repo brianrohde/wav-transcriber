@@ -1,0 +1,89 @@
+version: '3.8'
+
+services:
+  # Backend service (Python FastAPI example)
+  transcriber-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: transcriber_backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ENV=production
+      - LOG_LEVEL=info
+    volumes:
+      - ./uploads:/app/uploads
+    networks:
+      - transcriber_net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Frontend service (Node.js + Vite example)
+  transcriber-frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: transcriber_frontend
+    restart: unless-stopped
+    ports:
+      - "5173:3000"
+    environment:
+      - FRONTEND_URL=https://transcriber.anothershadeofgrey.com
+      - API_URL=https://api.anothershadeofgrey.com
+    depends_on:
+      transcriber-backend:
+        condition: service_healthy
+    networks:
+      - transcriber_net
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  transcriber_net:
+    driver: bridge
+
+# ============================================================
+# CUSTOMIZE FOR YOUR PROJECT:
+# ============================================================
+# SERVICE NAMES: Change "transcriber-backend" to your backend name
+#
+# PORTS: Update port mappings
+#   Frontend: 5173:3000 (keep left side for Caddy routing)
+#   Backend: 8000:8000 (keep left side for Caddy routing)
+#
+# ENVIRONMENT VARIABLES: Add what your app needs
+#   - DATABASE_URL=postgresql://...
+#   - REDIS_URL=redis://...
+#   - SECRET_KEY=...
+#
+# VOLUMES: Add storage locations
+#   - ./data:/data (for persistent data)
+#   - ./logs:/app/logs (for application logs)
+#
+# DEPENDS_ON: Set service startup order
+#   If frontend needs backend:
+#     depends_on:
+#       backend:
+#         condition: service_healthy
+#
+# ============================================================
+# CADDY REVERSE PROXY (on VPS, routes to these services):
+# ============================================================
+# transcriber.anothershadeofgrey.com {
+#   reverse_proxy localhost:5173
+# }
+#
+# api.anothershadeofgrey.com {
+#   reverse_proxy localhost:8000
+# }
+# ============================================================

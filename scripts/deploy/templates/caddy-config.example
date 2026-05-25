@@ -1,0 +1,107 @@
+# Caddy Reverse Proxy Configuration Template
+# Add this to your /root/caddy/Caddyfile on VPS
+
+# ============================================================
+# Single Application Example
+# ============================================================
+# Frontend: https://transcriber.anothershadeofgrey.com
+# Backend: https://api.anothershadeofgrey.com
+
+transcriber.anothershadeofgrey.com {
+  reverse_proxy localhost:5173
+
+  # Security headers
+  header / {
+    Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    X-Content-Type-Options "nosniff"
+    X-Frame-Options "SAMEORIGIN"
+    X-XSS-Protection "1; mode=block"
+    Referrer-Policy "strict-origin-when-cross-origin"
+  }
+
+  # Logging
+  log {
+    output file /var/log/caddy/transcriber.log
+  }
+}
+
+api.anothershadeofgrey.com {
+  reverse_proxy localhost:8000
+
+  # Security headers
+  header / {
+    Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    X-Content-Type-Options "nosniff"
+    X-Frame-Options "SAMEORIGIN"
+  }
+
+  # Logging
+  log {
+    output file /var/log/caddy/api.log
+  }
+}
+
+# ============================================================
+# Multiple Applications Example
+# ============================================================
+# If you have multiple apps on the same VPS:
+
+# app1.anothershadeofgrey.com {
+#   reverse_proxy localhost:3000
+# }
+#
+# api1.anothershadeofgrey.com {
+#   reverse_proxy localhost:8001
+# }
+#
+# app2.anothershadeofgrey.com {
+#   reverse_proxy localhost:3001
+# }
+#
+# api2.anothershadeofgrey.com {
+#   reverse_proxy localhost:8002
+# }
+
+# ============================================================
+# Customize for Your Project:
+# ============================================================
+# 1. Replace "anothershadeofgrey.com" with your domain
+# 2. Replace "transcriber" with your app name
+# 3. Adjust port numbers if different
+#    - Frontend typically: 3000, 3001, 5173, etc.
+#    - Backend typically: 8000, 8001, 8002, etc.
+# 4. Add more blocks for additional subdomains
+
+# Usage:
+# 1. SSH into VPS: ssh root@95.217.9.84
+# 2. Edit Caddyfile: nano /root/caddy/Caddyfile
+# 3. Paste the relevant blocks above
+# 4. Reload Caddy: docker exec caddy caddy reload -c /etc/caddy/Caddyfile
+# 5. Verify: docker logs caddy -n 20
+
+# ============================================================
+# Features:
+# ============================================================
+# ✅ Automatic HTTPS (free SSL via Let's Encrypt)
+# ✅ Automatic HTTP→HTTPS redirect
+# ✅ Security headers
+# ✅ Request logging
+# ✅ Multiple domain support
+# ✅ Load balancing ready
+
+# ============================================================
+# Troubleshooting:
+# ============================================================
+# Port already in use?
+#   docker ps | grep caddy
+#   docker logs caddy
+#
+# Caddy won't reload?
+#   docker exec caddy caddy validate -c /etc/caddy/Caddyfile
+#   docker restart caddy
+#
+# SSL certificate issues?
+#   Wait 5-10 minutes for Let's Encrypt
+#   Check DNS: nslookup yourapp.yourdomain.com
+#   Check logs: docker logs caddy
+# ============================================================

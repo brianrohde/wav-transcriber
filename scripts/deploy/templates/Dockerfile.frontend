@@ -1,0 +1,65 @@
+# Frontend Dockerfile Template
+# Multi-stage build: builder → production (Node.js + Vite example)
+
+# Stage 1: Build
+FROM node:18-alpine AS builder
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm ci
+
+# Copy source code
+COPY . .
+
+# Build application
+RUN npm run build
+
+# Stage 2: Production
+FROM node:18-alpine
+
+WORKDIR /app
+
+# Install serve to run production build
+RUN npm install -g serve
+
+# Copy built assets from builder
+COPY --from=builder /app/dist ./dist
+
+# Expose port (change if needed)
+EXPOSE 3000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:3000 || exit 1
+
+# Start server (serve the dist directory)
+CMD ["serve", "-s", "dist", "-l", "3000"]
+
+# ============================================================
+# CUSTOMIZE FOR YOUR STACK:
+# ============================================================
+# Next.js:
+#   Stage 2 CMD: ["npm", "start"]
+#   Expose: 3000
+#
+# React (Create React App):
+#   Install: npm install -g serve
+#   Build: npm run build
+#   CMD: ["serve", "-s", "build", "-l", "3000"]
+#
+# Vue + Vite (keep as-is, uses serve)
+#   Build: npm run build
+#   CMD: ["serve", "-s", "dist", "-l", "3000"]
+#
+# Svelte:
+#   Build: npm run build
+#   CMD: ["node", "build/index.js"]
+#
+# Angular:
+#   Build: npm run build
+#   CMD: ["npx", "http-server", "dist", "-p", "3000"]
+# ============================================================
