@@ -66,6 +66,7 @@ These files are often created in root for convenience but belong in a `docs/` su
 
 | Pattern | Reason |
 |---------|--------|
+| `*-HYGIENE-REPORT.md` / `*-AUDIT.md` / `*-REPORT.md` (at root) | Self-referential — hygiene reports belong in `docs/notes/`, never in root |
 | Temporary notes, scratch files | Root pollution; no canonical purpose |
 | AI scratchpad outputs | Not a project entrypoint |
 | `*-final.*` / `*-new.*` / `*-copy.*` / `*-v2.*` | Duplicate naming antipattern |

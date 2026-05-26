@@ -63,6 +63,7 @@ For every file at the repo root, assign one classification using the allowlist i
 For each `.md` file, evaluate all rules from `references/rule-catalog.md`. Key checks:
 
 **Root rules**
+- `ROOT-HYGIENE-SELF-REF` (HIGH): Hygiene/audit reports at root (ironic anti-pattern) → move to `docs/notes/YYYY_MM_DD-*.md`
 - `ROOT-MD` (HIGH): `.md` at root not on allowlist → propose move to correct `docs/` subfolder
 - `ROOT-DUP` (HIGH): multiple README-like or same-topic root docs
 - `ROOT-ASSET` (MEDIUM): image/export at root
@@ -183,6 +184,33 @@ review_by: YYYY-MM-DD          # optional — for time-sensitive docs
 | Root special files | Exact conventional name | `README.md`, `CONTRIBUTING.md` |
 
 **Why `YYYY_MM_DD-slug`**: On Windows, double-clicking in a filename selects hyphen-separated tokens. Underscores inside the date block and inside the slug mean one double-click selects the whole date, one selects the whole title — two clean units.
+
+---
+
+## Self-Referential Anti-Pattern: ROOT-HYGIENE-SELF-REF
+
+**The Problem:** Creating audit reports at the repository root defeats the entire purpose of cleaning the root.
+
+**Example of the anti-pattern:**
+```
+You run: /root-directory-hygiene analyze
+It produces: ROOT-HYGIENE-REPORT.md
+Result: Root is now polluted with the audit report 😞
+```
+
+**The Rule:** `ROOT-HYGIENE-SELF-REF` (HIGH) — Audit reports, hygiene reports, and self-referential documentation belong in `docs/notes/`, never at root.
+
+**When you run this skill:**
+- Do NOT write audit reports to the repo root
+- If a report is generated, it should be moved to `docs/notes/YYYY_MM_DD-hygiene-audit.md` immediately
+- If you see `*HYGIENE*.md` or `*AUDIT*.md` at root after running this skill, that's a bug — report it
+- The skill itself will flag this violation with `apply V008` (or use `fix --safe` to auto-move it)
+
+**Safe practices:**
+- Use `analyze` to review issues (no output files)
+- Use `plan` for detailed remediation plan (output to stdout, not files)
+- Output reports to `docs/notes/` with a date prefix if you need to save them
+- Never commit audit/hygiene/report artifacts to root
 
 ---
 

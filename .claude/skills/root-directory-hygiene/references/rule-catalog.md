@@ -6,6 +6,7 @@ All rules enforced by `/repo-hygiene`. Rules are evaluated in severity order.
 
 | Rule ID | Description | Severity | Auto-fix confidence | Safe auto-apply |
 |---------|-------------|----------|---------------------|-----------------|
+| ROOT-HYGIENE-SELF-REF | Hygiene/audit report at root (ironic and anti-pattern) | HIGH | High — move to `docs/notes/` with date prefix | Yes |
 | ROOT-MD | `.md` file at repo root not on allowlist | HIGH | High if destination folder is unambiguous | Yes |
 | ROOT-DUP | Multiple README-like or same-topic files at root | HIGH | Low — canonical selection requires judgment | No |
 | ROOT-ASSET | Image, PDF, or report artifact at root | MEDIUM | High for images/screenshots | Yes |
