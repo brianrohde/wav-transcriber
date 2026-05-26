@@ -1,0 +1,23 @@
+{
+  "skill_name": "g-s-deploy",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I just built a React frontend and FastAPI backend for my audio analysis tool. I want to run it locally first to test everything, then deploy it to a VPS with a custom domain. Walk me through the entire process step-by-step, including how to set up Docker containers and domain configuration.",
+      "expected_output": "Comprehensive guidance covering: (1) project structure assessment, (2) framework copying, (3) template customization for React + FastAPI, (4) local dev setup with startup scripts, (5) Docker configuration, (6) VPS prerequisites, (7) domain/DNS setup, (8) VPS deployment process, (9) verification steps. Should reference specific files from scripts/deploy/ and provide customized config examples.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "I have a Next.js app with a Node.js Express API that I want to deploy. My frontend needs to run on https://myapp.example.com and the API on https://api.example.com. Both should be on the same VPS. What changes do I need to make to the deployment templates, and how do I configure Caddy to route traffic correctly?",
+      "expected_output": "Specific customizations for Next.js frontend and Express backend, including: (1) modified Dockerfile.frontend for Next.js, (2) modified Dockerfile.backend for Node.js/Express, (3) customized docker-compose.prod.yml with both services, (4) Caddy configuration blocks for both subdomains, (5) explanation of reverse proxy routing, (6) environment variable setup. Should show complete code snippets ready to use.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "I'm new to deployment. I have a simple Python web app (just a single Flask server) and I want to learn how to: (1) run it locally on Windows, (2) understand what Docker does, (3) deploy it to a VPS without making it too complicated. Can you guide me through learning this step-by-step without overwhelming me?",
+      "expected_output": "Beginner-friendly guidance with: (1) simplified explanation of Docker and why it's useful, (2) reference to START-HERE.md entry point, (3) recommended learning path from INDEX.md, (4) simple Flask Dockerfile example, (5) step-by-step local startup instructions, (6) optional VPS deployment guidance, (7) key concepts explained in plain language. Should feel approachable and not assume deep deployment knowledge.",
+      "files": []
+    }
+  ]
+}
